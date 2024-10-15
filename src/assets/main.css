@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components{
+  .sidebar-icon{
+    @apply relative flex items-center justify-center h-12 w-12 mb-2 mx-auto shadow-lg
+      hover:bg-blue-100 hover:text-blue-500 rounded-3xl hover:rounded-xl hover:size-14 transition-all duration-300;
+  }
+  .sidebar-tooltip{
+    @apply fixed w-auto p-2 m-2 left-14 rounded-md shadow-md text-black bg-blue-100 text-xs font-bold transition-all duration-100 origin-left scale-0;
+  }
+  .site-body-left-colmun{
+    @apply flex w-[261px] border-r-2 border-r-gray-200 h-full pt-5
+  }
+  .site-body-center-colmun{
+    @apply flex h-full
+  }
+  
+
+}
