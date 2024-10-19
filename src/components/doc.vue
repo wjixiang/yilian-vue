@@ -19,7 +19,7 @@ watch(
     ()=>props.DBID,
     async (newVal)=>{
         data.value = await load_doc(newVal)
-        rmd.value = await marked(data.value.history[0].content) 
+        rmd.value = await marked.parse(data.value.history[0].content) 
     },
     {
         immediate:true
