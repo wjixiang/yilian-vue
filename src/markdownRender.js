@@ -2,50 +2,6 @@ import { marked } from "marked";
 import client from "./axios"
 import axios from "axios";
 
-// const getdbid = (innerText)=>{
-//     const DBID = axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(innerText))
-//     .then((res)=>{
-//         if(res.data.status==200){
-//             return  res.data.res._id
-//         }else{
-//             return null
-//         }
-//     })
-//     .catch((error)=>{
-//         console.log(error)
-//     })
-// }
-
-const tokenizer = {
-    link(src){
-        const match = src.match(/^\[\[.*?\]\]/);
-        if(match){
-            // console.log(match.input)
-            const innerText = match[0].replace('[[','').replace(']]','')
-            // const DBID = axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(innerText))
-            //     .then((res)=>{
-            //         if(res.data.status==200){
-            //             return  res.data.res._id
-            //         }else{
-            //             return null
-            //         }
-            //     })
-            //     .catch((error)=>{
-            //         console.log(error)
-            //     })
-
-            return {
-                type: 'link',
-                raw: match[0],
-                text: innerText,
-                // activated: (DBID==undefined),
-                // dbid: DBID
-
-            }
-        }
-    }
-}
-
 const renderer = {  
     list(token) {  //解析ol-ul
         const isOrdered = token.ordered; // 判断是否为有序列表  
@@ -74,14 +30,33 @@ const renderer = {
             return `<li class="${itemClass}">${marked.parseInline(token.text)}</li>`;  
         }
     },
-    link(token){
-        const linkClass = 'internal-link'
-        
-        return `<a class="${linkClass}" herf="#" linktitle="${token.text}" activated=${token.activated} dbid=${token.DBID}>${token.text}</a>`
-    }
 };   
 
+const internalLink = {  
+    name: 'internalLink',  
+    level: 'inline', // 指定为行内扩展  
+    start(src) {  
+        return src.indexOf('[['); // 查找 [[ 的位置  
+    },  
+    tokenizer(src) {  
+        const rule = /^\[\[(.+?)\]\]/; // 正则表达式匹配 [[链接]]  
+        const match = rule.exec(src);  
+        if (match) {  
+            return {  
+                type: 'internalLink',  
+                raw: match[0],  
+                href: match[1], // 提取链接文本  
+            };  
+        }  
+        return false; // 返回 false 使用默认处理  
+    },  
+    renderer(token) {  
+        return `<a class="internal-link" href="#" linktitle="${token.href}">${token.href}</a>`; // 渲染为 <a> 元素  
+    }  
+};
+
 export default marked.use({
-    tokenizer,
+    // tokenizer,
+    extensions:[internalLink],
     renderer,
 })
