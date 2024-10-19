@@ -14,12 +14,12 @@ const props = defineProps({
 })
 
 const data = ref(await load_doc(props.DBID))
-
-
+const rmd = ref(null)
 watch(
     ()=>props.DBID,
     async (newVal)=>{
         data.value = await load_doc(newVal)
+        rmd.value = await marked(data.value.history[0].content) 
     },
     {
         immediate:true
@@ -28,8 +28,8 @@ watch(
 
 
 const renderedMarkdown = computed(() => {  
-      return marked(data.value.history[0].content);  
-});
+      return rmd.value
+})
 
 const store = useStore()
 const openInteralLink=async (event)=>{
