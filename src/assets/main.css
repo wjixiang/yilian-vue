@@ -16,6 +16,14 @@
   .site-body-center-colmun{
     @apply flex h-full
   }
-  
+  ol{
+    margin-left: 18px;
+  }
+  ol>li{
+    @apply list-decimal
+  }
+  .internal-link{
+    @apply text-blue-600 hover:text-blue-800 active:text-blue-900 hover:cursor-pointer
+  }
 
 }
