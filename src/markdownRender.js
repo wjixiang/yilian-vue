@@ -22,24 +22,24 @@ const tokenizer = {
         if(match){
             // console.log(match.input)
             const innerText = match[0].replace('[[','').replace(']]','')
-            const DBID = axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(innerText))
-                .then((res)=>{
-                    if(res.data.status==200){
-                        return  res.data.res._id
-                    }else{
-                        return null
-                    }
-                })
-                .catch((error)=>{
-                    console.log(error)
-                })
+            // const DBID = axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(innerText))
+            //     .then((res)=>{
+            //         if(res.data.status==200){
+            //             return  res.data.res._id
+            //         }else{
+            //             return null
+            //         }
+            //     })
+            //     .catch((error)=>{
+            //         console.log(error)
+            //     })
 
             return {
                 type: 'link',
                 raw: match[0],
                 text: innerText,
-                activated: (DBID==undefined),
-                dbid: DBID
+                // activated: (DBID==undefined),
+                // dbid: DBID
 
             }
         }
