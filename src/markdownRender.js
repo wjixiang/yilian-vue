@@ -1,5 +1,20 @@
 import { marked } from "marked";
 import client from "./axios"
+import axios from "axios";
+
+// const getdbid = (innerText)=>{
+//     const DBID = axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(innerText))
+//     .then((res)=>{
+//         if(res.data.status==200){
+//             return  res.data.res._id
+//         }else{
+//             return null
+//         }
+//     })
+//     .catch((error)=>{
+//         console.log(error)
+//     })
+// }
 
 const tokenizer = {
     link(src){
@@ -7,12 +22,24 @@ const tokenizer = {
         if(match){
             // console.log(match.input)
             const innerText = match[0].replace('[[','').replace(']]','')
+            const DBID = axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(innerText))
+                .then((res)=>{
+                    if(res.data.status==200){
+                        return  res.data.res._id
+                    }else{
+                        return null
+                    }
+                })
+                .catch((error)=>{
+                    console.log(error)
+                })
 
             return {
                 type: 'link',
                 raw: match[0],
                 text: innerText,
-                around: match.input.split(match[0])
+                activated: (DBID==undefined),
+                dbid: DBID
 
             }
         }
@@ -50,8 +77,11 @@ const renderer = {
     link(token){
         const linkClass = 'internal-link'
         
-        return `<a class="${linkClass}" herf="#" linktitle="${token.text}">${token.text}</a>`
+        return `<a class="${linkClass}" herf="#" linktitle="${token.text}" activated=${token.activated} dbid=${token.DBID}>${token.text}</a>`
     }
 };   
 
-export default marked.use({tokenizer,renderer})
+export default marked.use({
+    tokenizer,
+    renderer,
+})
