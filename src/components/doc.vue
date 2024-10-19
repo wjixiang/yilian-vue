@@ -40,13 +40,17 @@ const openInteralLink=async (event)=>{
         // console.log(linktitle)
         axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(linktitle))
         .then((res)=>{
-            const DBID = res.data._id
-            store.dispatch('updateDBID', DBID);
+            if(res.data.status==200){
+                const DBID = res.data.res._id
+                store.dispatch('updateDBID', DBID);
+            }else{
+                console.log(res.data.status)
+            }
         })
         .catch((error)=>{
             console.log(error)
         })
-        console.log(data)
+        // console.log(data)
         // 阻止默认行为  
         event.preventDefault();  
       }  
