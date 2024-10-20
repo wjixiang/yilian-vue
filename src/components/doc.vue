@@ -15,6 +15,7 @@ const props = defineProps({
 
 const data = ref(await load_doc(props.DBID))
 const rmd = ref(null)
+
 watch(
     ()=>props.DBID,
     async (newVal)=>{
@@ -26,6 +27,9 @@ watch(
     }
 )
 
+const title = computed(()=>{
+    return (data.value.history[0].title)
+})
 
 const renderedMarkdown = computed(() => {  
       return rmd.value
@@ -35,7 +39,7 @@ const store = useStore()
 const openInteralLink=async (event)=>{
     if (event.target.tagName === 'A') {  
         const linktitle =  event.target.getAttribute('linktitle');
-        
+        console.log(linktitle)
         // 执行其他逻辑  
         // console.log(linktitle)
         axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(linktitle))
@@ -61,6 +65,9 @@ const openInteralLink=async (event)=>{
 
 <template>
     <div class="document h-full">
+        <div class="p-5 font-bold text-4xl text-blue-700">
+            {{title}}
+        </div>
         <div class="content px-5">
             <div v-html="renderedMarkdown" @click="openInteralLink"></div>
         </div>
