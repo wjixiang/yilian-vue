@@ -64,7 +64,7 @@ const openInteralLink=async (event)=>{
 </script>
 
 <template>
-    <div class="document h-full">
+    <div class="document h-full overflow-auto">
         <div class="p-5 font-bold text-4xl text-blue-700">
             {{title}}
         </div>
