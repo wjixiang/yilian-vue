@@ -1,7 +1,6 @@
 <script setup>
-import bookmark from './bookmark.vue';
 import doc from './doc.vue';
-import { computed, ref } from 'vue';
+import { computed} from 'vue';
 import { useStore } from 'vuex';
 const store = useStore()
 const DBID = computed(
@@ -13,8 +12,8 @@ const DBID = computed(
 </script>
 
 <template>
-    <div id="wiki" class="flex h-screen">
-        <bookmark />
+    <div id="wiki" class="flex-1 h-screen w-auto">
+        <!-- <bookmark /> -->
         <suspense>
             <doc :DBID="DBID"/>
         </suspense>

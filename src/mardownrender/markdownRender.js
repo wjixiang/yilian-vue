@@ -1,36 +1,14 @@
 import { marked } from "marked";
-import client from "./axios"
+import markedKatex from "marked-katex-extension";
+
 import axios from "axios";
 import {load_doc} from '@/loadDoc';
 
+import { internalLink } from "./internallink";
+import mermaid from "mermaid";
 
-const internalLink = {  
-    name: 'internalLink',  
-    level: 'inline', // 指定为行内扩展  
-    start(src) {  
-        // const link = src.indexOf('[[')
-        // const embed = src.indexOf('![[')
-        return src.indexOf(/\[\[/); // 查找 [[ 的位置  
-    },  
-    tokenizer(src) {  
-        const rule = /^(?<!\!)\[\[(.+?)\]\]/; // 正则表达式匹配 [[链接]]  
-        // console.log(src)
-        const match = rule.exec(src);  
-        if (match) {  
-            return {  
-                type: 'internalLink',  
-                raw: match[0],  
-                href: match[1], // 提取链接文本  
-                dbid: '',
-            };  
-        }  
-        return false; // 返回 false 使用默认处理  
-    },  
-    renderer(token) {  
-        // console.log(token.type)
-        return `<a class="internal-link" href="#" linktitle="${token.href}" dbid="${token.dbid}">${token.href}</a>`; // 渲染为 <a> 元素  
-    }  
-};
+
+
 
 const embed = {
     name: 'embed',
@@ -41,10 +19,11 @@ const embed = {
     tokenizer(src) {  
         const rule = /^!\[\[(.+?)\]\]/; // 正则表达式匹配 [[链接]]  
         const match = rule.exec(src);  
+        // console.log(match)
         if (match) {  
             //提取后缀对embed进行分类
             const suffix = match[1].match(/\.([^.]+)$/)
-            console.log(suffix)
+            // console.log(suffix)
             if(suffix==null){//embed md
                 return {  
                     type: 'embed',  
@@ -82,6 +61,9 @@ const embed = {
             }
         }else if(token.mode=='img'){
             return `<img src="${import.meta.env.VITE_API_URL+"/api/img/"+encodeURIComponent(token.href)}"></img>`
+        }else if(token.mode=='latex_block'){
+            console.log(token.text)
+            return `<p>这是个latex</p>`
         }
     }
 }
@@ -93,29 +75,43 @@ const callout = {
         return src.indexOf('> \[\!PDF\|');
     },
     tokenizer(src){
-        const rule = /^> \[!PDF\|note\][^\n]+\n(>[^\n]+\n)+/;; 
+        const rule = /^> \[!PDF\|\w+\][^\n]+\n(>[^\n]+\n)+/;// /\$\$(.*?)\$\$/
         const match = rule.exec(src);
         // console.log(match)
         if(match){
+            const contentList = match[0].split('\n> ')
             return{
                 type: 'callout',  
                 raw: match[0],  
-                text: match[1], // 提取链接文本  
+                contentList:contentList,
+                title:contentList[0].replace('> [!PDF|note] ',''),
+                content:''
             }
         }
     },
     renderer(token){
-        const contentList = token.raw.split('\n> ')
-        const title = contentList[0].replace('> [!PDF|note] ','')
-        console.log(contentList)
         return  `<div class='pdf-quote'>
-            <div class='quote-title'${marked.parseInline(title)}</div>
-            ${contentList[1]}
+            <div class='quote-title'${token.title}</div>
+            ${token.content}
         </div>`
     }
 }
 
+
 const walkTokens = async(token)=> {
+    if (token.type==='code'){
+        if(token.lang=='mermaid'){
+            token.svg = await mermaid.render('mermaid',token.text)
+            console.log(token.svg)
+        }
+        // console.log(token)
+    }
+
+    if (token.type==='callout'){
+        token.title= await marked.parse(token.title)
+        token.content = await marked.parse(token.contentList[1])
+    }
+
     if (token.type === 'internalLink') {
         const DBID = await axios.get(import.meta.env.VITE_API_URL+"/api/titletodbid/"+encodeURIComponent(token.href))
             .then((res)=>{
@@ -157,17 +153,18 @@ const walkTokens = async(token)=> {
     }
 }
 
-const renderer = {
-    internalLink({token}){
-        console.log(token)
+const options = {
+    throwOnError: false,
+    output:'mathml'
+  };
 
-    }
-}
+marked.use(markedKatex(options))
 
 export default marked.use({
-    // tokenizer,
-    extensions:[callout,embed,internalLink,],
+    extensions:[callout,embed,internalLink],
     // renderer,
     async:true,
     walkTokens,
 })
+
+// console.log(marked.parse("$$e = mc^2$$"))

@@ -2,10 +2,13 @@
 import { defineProps, watch } from 'vue';
 import axios from 'axios';
 import {load_doc} from '@/loadDoc';
-import { ref,computed } from 'vue';
+import { ref,computed,onMounted } from 'vue';
 import { marked } from 'marked';  
 import { mapState,mapActions,useStore} from 'vuex';
+import mermaid from "mermaid";
 
+mermaid.initialize({startOnLoad:false})
+ 
 const props = defineProps({
     DBID: {
         type: String,
@@ -15,12 +18,15 @@ const props = defineProps({
 
 const data = ref(await load_doc(props.DBID))
 const rmd = ref(null)
+const docdv = ref(null)
+
 
 watch(
     ()=>props.DBID,
     async (newVal)=>{
         data.value = await load_doc(newVal)
         rmd.value = await marked.parse(data.value.history[0].content) 
+        
     },
     {
         immediate:true
@@ -69,7 +75,7 @@ const openInteralLink=async (event)=>{
             {{title}}
         </div>
         <div class="content px-5">
-            <div v-html="renderedMarkdown" @click="openInteralLink"></div>
+            <div v-html="renderedMarkdown" @click="openInteralLink" ref="docdv"></div>
         </div>
     </div>
 </template>
