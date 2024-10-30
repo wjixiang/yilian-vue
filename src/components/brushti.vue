@@ -2,12 +2,12 @@
 import { onMounted } from 'vue';
 import indexitem from './testmark.vue';
 import { ref } from 'vue';
-import axios from 'axios';
+import instance from '../myaxios'
 
 const treeData = ref(null)
 const fetchBookmarks = async () => {  
     try {  
-        const response = await axios.get('http://localhost:3000/api/bookmarks');  
+        const response = await instance.get('/api/bookmarks');  
         treeData.value = response.data
         console.log(response.data)
     } catch (error) {  
@@ -16,7 +16,6 @@ const fetchBookmarks = async () => {
     };  
 
     // Fetch bookmarks when component is mounted  
-
 
     onMounted(fetchBookmarks)
 
