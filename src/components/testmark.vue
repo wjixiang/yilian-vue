@@ -59,7 +59,7 @@
           <path d="m15 5 4 4"/>
         </svg>  
         
-        <span class="select-none">{{ node.title }}</span>  
+        <span class="select-none">{{ node.node }}</span>  
       </div>  
       
       <div  
